@@ -58,3 +58,4 @@ export const schemas = {
   updateFavoriteSchema,
   updateContactSchema,
 };
+

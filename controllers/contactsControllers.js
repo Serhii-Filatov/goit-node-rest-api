@@ -51,7 +51,7 @@ export const updateContact = ctrlWrapper(async (req, res) => {
   return res.status(200).json(updatedContact);
 });
 
-export const updateFavorite = ctrlWrapper(async (req, res) => {
+export const updateStatusContact = ctrlWrapper(async (req, res) => {
   const { id } = req.params;
   const result = await Contact.findByIdAndUpdate(
     id,
@@ -61,10 +61,12 @@ export const updateFavorite = ctrlWrapper(async (req, res) => {
     { new: true }
   );
 
-  if (result === null) {
-    throw HttpError(404, 'Not found');
+  if (req.body.favorite === undefined) {
+    return res.status(400).json({ message: 'missing field favorite' });
   }
-
+  if (result === null) {
+    return res.status(404).json({ message: 'Not found' });
+  }
   res.send(result);
 });
 
