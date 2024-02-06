@@ -18,8 +18,12 @@ const contactSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
+    },
   },
-  { versionKey: false }
+  { versionKey: false, timestamps: true }
 );
 
 contactSchema.post('save', handleMongooseError);
@@ -38,12 +42,14 @@ const createContactSchema = Joi.object({
     .max(50)
     .required()
     .messages({ 'any.required': 'Missing required phone field' }),
+  favorite: Joi.boolean(),
 });
 
 const updateContactSchema = Joi.object({
   name: Joi.string().max(50),
   email: Joi.string().email(),
   phone: Joi.string().min(3).max(50),
+  favorite: Joi.boolean(),
 });
 
 const updateFavoriteSchema = Joi.object({
