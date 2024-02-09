@@ -8,6 +8,7 @@ import {
   getCurrent,
   logout,
   updateSubscription,
+  updateAvatar,
 } from '../controllers/auth.js';
 
 import authenticate from '../middlewares/authenticate.js';
