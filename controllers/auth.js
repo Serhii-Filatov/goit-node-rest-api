@@ -1,14 +1,17 @@
-import fs from 'fs/promises';
-import path from 'path';
 import dotenv from 'dotenv';
 dotenv.config();
+import fs from 'fs/promises';
+import path from 'path';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import gravatar from 'gravatar';
+import Jimp from 'jimp';
 import { User } from '../schemas/user.js';
 import HttpError from '../helpers/HttpError.js';
 import ctrlWrapper from '../helpers/ctrlWrapper.js';
 
 const { SECRET_KEY } = process.env;
+const avatarsDir = path.resolve('public', 'avatars');
 
 export const register = ctrlWrapper(async (req, res) => {
   const { email, password } = req.body;
@@ -19,7 +22,12 @@ export const register = ctrlWrapper(async (req, res) => {
   }
 
   const hashPassword = await bcryptjs.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+  const newUser = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarURL,
+  });
 
   res.status(201).json({
     user: {
