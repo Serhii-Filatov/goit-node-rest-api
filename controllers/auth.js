@@ -1,3 +1,5 @@
+import fs from 'fs/promises';
+import path from 'path';
 import dotenv from 'dotenv';
 dotenv.config();
 import bcryptjs from 'bcryptjs';
@@ -78,5 +80,29 @@ export const updateSubscription = ctrlWrapper(async (req, res) => {
   await User.findByIdAndUpdate(_id, { subscription });
   res.json({
     message: 'Subscription has been updated successfully',
+  });
+});
+
+export const updateAvatar = ctrlWrapper(async (req, res) => {
+  const { _id } = req.user;
+
+  if (!req.file) {
+    throw HttpError(400, 'Please, attach avatar. It is required.');
+  }
+
+  const { path: tempUpload, originalname } = req.file;
+
+  const fileName = `${_id}_${originalname}`;
+  const resultUpload = path.resolve(avatarsDir, fileName);
+
+  const image = await Jimp.read(tempUpload);
+  image.resize(250, 250).write(tempUpload);
+  await fs.rename(tempUpload, resultUpload);
+
+  const avatarURL = path.join('avatars', fileName);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+  res.json({
+    avatarURL,
   });
 });
