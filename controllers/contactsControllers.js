@@ -3,7 +3,19 @@ import HttpError from '../helpers/HttpError.js';
 import ctrlWrapper from '../helpers/ctrlWrapper.js';
 
 export const getAllContacts = ctrlWrapper(async (req, res) => {
-  const result = await Contact.find();
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 20, favorite } = req.query;
+  const skip = (page - 1) * limit;
+
+  const isFavorite = favorite === 'true';
+  const result = await Contact.find(
+    { owner, favorite: isFavorite },
+    '-createdAt -updatedAt',
+    {
+      skip,
+      limit,
+    }
+  ).populate('owner', 'email');
   res.send(result);
 });
 
@@ -30,8 +42,9 @@ export const deleteContact = ctrlWrapper(async (req, res) => {
 });
 
 export const createContact = ctrlWrapper(async (req, res) => {
+  const { _id: owner } = req.user;
   const newContact = await Contact.create(req.body);
-  res.status(201).json(newContact);
+  res.status(201).send(newContact);
 });
 
 export const updateContact = ctrlWrapper(async (req, res) => {
